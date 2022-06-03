@@ -13,6 +13,7 @@ const slice = createSlice({
     },
     setTransactions: (account, action: PayloadAction<TransactionType[]>) => {
       account.transactions = action.payload;
+      account.loading = false;
     },
   },
 });
@@ -22,5 +23,22 @@ export const { setBalance, setTransactions } = slice.actions;
 
 export const getTodayTransactions = createSelector(
   (state: RootState) => state.account.transactions,
-  (transactions) => transactions.filter((t) => dayjs(t.timestamp).isSame(dayjs())),
+  (transactions) => transactions.filter((t) => dayjs(t.timestamp).isSame(dayjs(), 'day')),
 );
+
+export const getTodayTotal = createSelector(getTodayTransactions, (transactions) => {
+  let withdraw = 0,
+    deposit = 0;
+
+  // console.log(transactions);
+
+  transactions.forEach((t) => {
+    if (t.type === 'withdrawal') {
+      withdraw += t.amount;
+    } else {
+      deposit += t.amount;
+    }
+  });
+
+  return { withdraw, deposit };
+});

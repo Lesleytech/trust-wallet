@@ -61,7 +61,7 @@ const RegisterScene: FC = () => {
         date.setDate(date.getDate() - i);
 
         await addDoc(collection(db, 'users', user.uid, 'transactions'), {
-          type: 'withdraw',
+          type: 'withdrawal',
           timestamp: Timestamp.fromDate(date),
           amount: 50 * rand,
         });

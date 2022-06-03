@@ -1,7 +1,14 @@
 import { Box, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
+import dayjs from 'dayjs';
 import { FC } from 'react';
+import { useSelector } from 'react-redux';
+
+import { formatNumber } from '../../../helpers';
+import { RootState } from '../../../store/types';
 
 const HistoryScene: FC = () => {
+  const { transactions } = useSelector((state: RootState) => state.account);
+
   return (
     <>
       <Box bg="white" p="1.5em 2em" borderRadius="15px" minH="200px" shadow="lg">
@@ -18,11 +25,19 @@ const HistoryScene: FC = () => {
               </Tr>
             </Thead>
             <Tbody>
-              <Tr>
-                <Td textTransform="capitalize">deposit</Td>
-                <Td isNumeric>400</Td>
-                <Td>Dec 12, 2022 at 5:45PM</Td>
-              </Tr>
+              {transactions.length === 0 ? (
+                <Tr>
+                  <Td fontSize="sm">No record.</Td>
+                </Tr>
+              ) : (
+                transactions.map(({ amount, id, timestamp, type }) => (
+                  <Tr key={id}>
+                    <Td textTransform="capitalize">{type}</Td>
+                    <Td isNumeric>{formatNumber(amount)}</Td>
+                    <Td>{dayjs(timestamp).format('MMM D, YYYY h:mm A')}</Td>
+                  </Tr>
+                ))
+              )}
             </Tbody>
           </Table>
         </TableContainer>

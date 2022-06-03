@@ -7,6 +7,6 @@ export interface UserType {
 export interface TransactionType {
   amount: number;
   type: 'deposit' | 'withdrawal';
-  timestamp: Date;
+  timestamp: number;
   id: string;
 }

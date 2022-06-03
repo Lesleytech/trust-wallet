@@ -1,11 +1,16 @@
 import { Box, Flex, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
+import dayjs from 'dayjs';
 import { FC } from 'react';
 import { useSelector } from 'react-redux';
 
+import { formatNumber } from '../../../helpers';
+import { getTodayTotal, getTodayTransactions } from '../../../store/slices/account';
 import { RootState } from '../../../store/types';
 
 const HomeScene: FC = () => {
   const { balance } = useSelector((state: RootState) => state.account);
+  const todayTransactions = useSelector(getTodayTransactions);
+  const todayTotal = useSelector(getTodayTotal);
 
   return (
     <>
@@ -20,7 +25,7 @@ const HomeScene: FC = () => {
           flexDir="column">
           <Text fontSize="sm">Account balance</Text>
           <Text fontSize="1.5rem" fontWeight="bold">
-            ${balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            ${formatNumber(balance)}
           </Text>
         </Flex>
         <Flex
@@ -33,7 +38,7 @@ const HomeScene: FC = () => {
           flexDir="column">
           <Text fontSize="sm">Today's withdrawal</Text>
           <Text fontSize="1.5rem" fontWeight="bold">
-            $0.00
+            ${formatNumber(todayTotal.withdraw)}
           </Text>
         </Flex>
         <Flex
@@ -46,7 +51,7 @@ const HomeScene: FC = () => {
           flexDir="column">
           <Text fontSize="sm">Today's deposit</Text>
           <Text fontSize="1.5rem" fontWeight="bold">
-            $0.00
+            ${formatNumber(todayTotal.deposit)}
           </Text>
         </Flex>
       </Flex>
@@ -62,11 +67,19 @@ const HomeScene: FC = () => {
               </Tr>
             </Thead>
             <Tbody>
-              <Tr>
-                <Td textTransform="capitalize">deposit</Td>
-                <Td isNumeric>400</Td>
-                <Td>Dec 12, 2022 at 5:45PM</Td>
-              </Tr>
+              {todayTransactions.length === 0 ? (
+                <Tr>
+                  <Td fontSize="sm">No record.</Td>
+                </Tr>
+              ) : (
+                todayTransactions.map(({ amount, id, timestamp, type }) => (
+                  <Tr key={id}>
+                    <Td textTransform="capitalize">{type}</Td>
+                    <Td isNumeric>{formatNumber(amount)}</Td>
+                    <Td>{dayjs(timestamp).format('MMM D, YYYY h:mm A')}</Td>
+                  </Tr>
+                ))
+              )}
             </Tbody>
           </Table>
         </TableContainer>

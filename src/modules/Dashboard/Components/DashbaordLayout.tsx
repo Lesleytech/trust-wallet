@@ -1,6 +1,6 @@
-import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Spinner, Text } from '@chakra-ui/react';
 import dayjs from 'dayjs';
-import { collection, doc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { FC, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { GiCash } from 'react-icons/gi';
@@ -53,6 +53,7 @@ const headings = navLinks.reduce((obj, current) => {
 const DashbaordLayout: FC = () => {
   const { pathname } = useLocation();
   const { currentUser } = useSelector((state: RootState) => state.auth);
+  const { loading } = useSelector((state: RootState) => state.account);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -64,13 +65,13 @@ const DashbaordLayout: FC = () => {
     });
 
     const unsubscribe2 = onSnapshot(
-      collection(db, 'users', currentUser.uid, 'transactions'),
+      query(collection(db, 'users', currentUser.uid, 'transactions'), orderBy('timestamp', 'desc')),
       (snapShot) => {
         const transactions: TransactionType[] = [];
 
         snapShot.forEach((doc) => {
           const t = doc.data() as any;
-          transactions.push({ ...t, id: doc.id, timestamp: dayjs(t.timestamp.toDate()).unix() });
+          transactions.push({ ...t, id: doc.id, timestamp: dayjs(t.timestamp.toDate()).valueOf() });
         });
 
         dispatch(setTransactions(transactions));
@@ -132,14 +133,20 @@ const DashbaordLayout: FC = () => {
               </Link>
             </Flex>
           </Box>
-          <Routes>
-            <Route path="/" element={<HomeScene />} />
-            <Route path="/history" element={<HistoryScene />} />
-            <Route path="/withdraw" element={<WithdrawScene />} />
-            <Route path="/deposit" element={<DepositScene />} />
-            <Route path="/profile" element={<ProfileScene />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
+          {loading ? (
+            <Flex alignItems="center" justifyContent="center" height="70vh">
+              <Spinner size="xl" color="gray.500" />
+            </Flex>
+          ) : (
+            <Routes>
+              <Route path="/" element={<HomeScene />} />
+              <Route path="/history" element={<HistoryScene />} />
+              <Route path="/withdraw" element={<WithdrawScene />} />
+              <Route path="/deposit" element={<DepositScene />} />
+              <Route path="/profile" element={<ProfileScene />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          )}
         </Box>
       </Box>
     </>
