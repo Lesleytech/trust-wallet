@@ -1,12 +1,19 @@
 import { Box, Button, Flex, Text } from '@chakra-ui/react';
-import { FC } from 'react';
+import dayjs from 'dayjs';
+import { collection, doc, onSnapshot } from 'firebase/firestore';
+import { FC, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { GiCash } from 'react-icons/gi';
 import { MdSpaceDashboard } from 'react-icons/md';
 import { RiArrowLeftRightLine, RiLuggageDepositFill, RiUserFill } from 'react-icons/ri';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
+import { setBalance, setTransactions } from '../../../store/slices/account';
+import { RootState } from '../../../store/types';
+import { db } from '../../../utils/firebase';
 import { DepositScene, HistoryScene, HomeScene, ProfileScene, WithdrawScene } from '../Scenes';
+import { TransactionType } from '../types';
 import { NavLink } from './NavLink';
 
 const navLinks = [
@@ -45,6 +52,36 @@ const headings = navLinks.reduce((obj, current) => {
 
 const DashbaordLayout: FC = () => {
   const { pathname } = useLocation();
+  const { currentUser } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const unsubscribe1 = onSnapshot(doc(db, 'users', currentUser.uid), (doc) => {
+      const user = doc.data();
+      dispatch(setBalance(user?.account.balance || 0));
+    });
+
+    const unsubscribe2 = onSnapshot(
+      collection(db, 'users', currentUser.uid, 'transactions'),
+      (snapShot) => {
+        const transactions: TransactionType[] = [];
+
+        snapShot.forEach((doc) => {
+          const t = doc.data() as any;
+          transactions.push({ ...t, id: doc.id, timestamp: dayjs(t.timestamp.toDate()).unix() });
+        });
+
+        dispatch(setTransactions(transactions));
+      },
+    );
+
+    return () => {
+      unsubscribe1();
+      unsubscribe2();
+    };
+  }, [currentUser, dispatch]);
 
   return (
     <>

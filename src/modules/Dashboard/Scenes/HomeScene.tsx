@@ -1,7 +1,12 @@
 import { Box, Flex, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
 import { FC } from 'react';
+import { useSelector } from 'react-redux';
+
+import { RootState } from '../../../store/types';
 
 const HomeScene: FC = () => {
+  const { balance } = useSelector((state: RootState) => state.account);
+
   return (
     <>
       <Flex height="100px" gap="1em" mb="1.5em">
@@ -15,7 +20,7 @@ const HomeScene: FC = () => {
           flexDir="column">
           <Text fontSize="sm">Account balance</Text>
           <Text fontSize="1.5rem" fontWeight="bold">
-            $100,000.58
+            ${balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </Text>
         </Flex>
         <Flex

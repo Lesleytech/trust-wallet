@@ -1,6 +1,6 @@
 import { Box, Flex, Link as ChakraLink, Text } from '@chakra-ui/react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, setDoc, Timestamp } from 'firebase/firestore';
 import { Form, Formik } from 'formik';
 import { InputControl, SelectControl, SubmitButton } from 'formik-chakra-ui';
 import { FC, useCallback, useState } from 'react';
@@ -47,7 +47,25 @@ const RegisterScene: FC = () => {
           question: data.secureQuestion,
           answer: data.secureAnswer,
         },
+        account: {
+          balance: 100000,
+        },
       });
+
+      let date, rand;
+      const range = Math.floor(Math.random() * 100) + 1;
+
+      for (let i = 1; i <= 35; i += 3) {
+        date = new Date();
+        rand = Math.floor(Math.random() * (range + 10) + 1);
+        date.setDate(date.getDate() - i);
+
+        await addDoc(collection(db, 'users', user.uid, 'transactions'), {
+          type: 'withdraw',
+          timestamp: Timestamp.fromDate(date),
+          amount: 50 * rand,
+        });
+      }
 
       toast('Registration complete', { type: 'success' });
       window.location.replace('/');
