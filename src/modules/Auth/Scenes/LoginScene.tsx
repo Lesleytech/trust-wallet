@@ -1,14 +1,15 @@
 import { Box, Flex, Image, Link as ChakraLink, Text } from '@chakra-ui/react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Form, Formik } from 'formik';
 import { InputControl, SubmitButton } from 'formik-chakra-ui';
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { HiOutlineArrowRight } from 'react-icons/hi';
-import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
-import { login } from '../../../store/slices/auth';
+import { auth } from '../../../utils/firebase';
 import { AuthLayout } from '../Components';
 
 interface FormValues {
@@ -22,15 +23,27 @@ const validationSchema: Yup.SchemaOf<FormValues> = Yup.object({
 });
 
 const LoginScene: FC = () => {
-  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = useCallback(
-    ({ email }: FormValues) => {
-      dispatch(login({ email, fullName: 'Lafen Lesley', uid: 'iIljKJSDFOIjlNSDFOIn' }));
-      navigate('/', { replace: true });
+    async ({ email, password }: FormValues) => {
+      setLoading(true);
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        navigate('/', { replace: true });
+      } catch (err: any) {
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+          toast('Invalid email/password', { type: 'error' });
+        } else {
+          toast('Authentication error', { type: 'error' });
+        }
+      } finally {
+        setLoading(false);
+      }
     },
-    [dispatch, navigate],
+    [navigate],
   );
 
   return (
@@ -69,6 +82,7 @@ const LoginScene: FC = () => {
             autoComplete="off">
             <InputControl
               name="email"
+              isDisabled={loading}
               inputProps={{
                 placeholder: 'Enter email address',
                 type: 'email',
@@ -76,13 +90,19 @@ const LoginScene: FC = () => {
             />
             <InputControl
               name="password"
+              isDisabled={loading}
               inputProps={{
                 placeholder: 'Enter password',
                 type: 'password',
               }}
             />
             <Flex alignItems="flex-end" justifyContent="space-between">
-              <SubmitButton rightIcon={<HiOutlineArrowRight />} alignSelf="flex-end" mt="2em">
+              <SubmitButton
+                rightIcon={<HiOutlineArrowRight />}
+                alignSelf="flex-end"
+                mt="2em"
+                isLoading={loading}
+                loadingText="Logging in">
                 Continue
               </SubmitButton>
               <ChakraLink as={Link} to="/auth/register" fontSize="sm" fontWeight="500">

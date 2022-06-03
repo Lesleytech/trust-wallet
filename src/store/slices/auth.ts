@@ -2,9 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { UserType } from '../../modules/Dashboard/types';
 
+const authUser = localStorage.getItem('auth_user');
+
 const slice = createSlice({
   name: 'auth',
-  initialState: { currentUser: null } as { currentUser: UserType | null },
+  initialState: { currentUser: authUser ? JSON.parse(authUser) : null } as {
+    currentUser: UserType | null;
+  },
   reducers: {
     login: (auth, action: PayloadAction<UserType | null>) => {
       auth.currentUser = action.payload;
@@ -16,4 +20,4 @@ const slice = createSlice({
 });
 
 export default slice.reducer;
-export const { login } = slice.actions;
+export const { login, logout } = slice.actions;

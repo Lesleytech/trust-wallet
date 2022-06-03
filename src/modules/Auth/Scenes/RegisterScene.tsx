@@ -1,13 +1,17 @@
 import { Box, Flex, Link as ChakraLink, Text } from '@chakra-ui/react';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import { Form, Formik } from 'formik';
 import { InputControl, SelectControl, SubmitButton } from 'formik-chakra-ui';
-import { FC } from 'react';
+import { FC, useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { HiOutlineArrowRight } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
 import { secureQuestions } from '../../../data';
+import { auth, db } from '../../../utils/firebase';
 import { AuthLayout } from '../Components';
 
 interface FormValues {
@@ -27,6 +31,33 @@ const validationSchema: Yup.SchemaOf<FormValues> = Yup.object({
 });
 
 const RegisterScene: FC = () => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = useCallback(async (data: FormValues) => {
+    setLoading(true);
+
+    try {
+      const { user } = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      await updateProfile(user, { displayName: data.fullName });
+
+      await setDoc(doc(db, 'users', user.uid), {
+        fullName: data.fullName,
+        email: data.email,
+        secure: {
+          question: data.secureQuestion,
+          answer: data.secureAnswer,
+        },
+      });
+
+      toast('Registration complete', { type: 'success' });
+      window.location.replace('/');
+    } catch (err) {
+      toast('An error occured', { type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return (
     <>
       <Helmet>
@@ -49,17 +80,26 @@ const RegisterScene: FC = () => {
             secureQuestion: secureQuestions[0],
             secureAnswer: '',
           }}
-          onSubmit={() => {}}
+          onSubmit={handleSubmit}
           validationSchema={validationSchema}>
-          <Flex as={Form} maxW="400px" direction="column" mx="auto" gap="0.5em" pb="75px">
+          <Flex
+            as={Form}
+            maxW="400px"
+            direction="column"
+            mx="auto"
+            gap="0.5em"
+            pb="75px"
+            autoComplete="off">
             <InputControl
               name="fullName"
+              isDisabled={loading}
               inputProps={{
                 placeholder: 'Enter full name',
               }}
             />
             <InputControl
               name="email"
+              isDisabled={loading}
               inputProps={{
                 placeholder: 'Email address',
                 type: 'email',
@@ -67,6 +107,7 @@ const RegisterScene: FC = () => {
             />
             <InputControl
               name="password"
+              isDisabled={loading}
               inputProps={{
                 placeholder: 'Enter password',
                 type: 'password',
@@ -77,7 +118,7 @@ const RegisterScene: FC = () => {
               Choose a security question and provide a secret answer. This question will be used to
               verify transactions that appear suspicious.
             </Text>
-            <SelectControl name="secureQuestion">
+            <SelectControl name="secureQuestion" isDisabled={loading}>
               {secureQuestions.map((q, i) => (
                 <option value={q} key={i}>
                   {q}
@@ -86,12 +127,18 @@ const RegisterScene: FC = () => {
             </SelectControl>
             <InputControl
               name="secureAnswer"
+              isDisabled={loading}
               inputProps={{
                 placeholder: 'Security question answer',
               }}
             />
             <Flex alignItems="flex-end" justifyContent="space-between">
-              <SubmitButton rightIcon={<HiOutlineArrowRight />} alignSelf="flex-end" mt="2em">
+              <SubmitButton
+                rightIcon={<HiOutlineArrowRight />}
+                alignSelf="flex-end"
+                mt="2em"
+                isLoading={loading}
+                loadingText="Creating account">
                 Continue
               </SubmitButton>
               <ChakraLink as={Link} to="/auth/login" fontSize="sm" fontWeight="500">

@@ -1,6 +1,8 @@
 import { Avatar, Box, Button, Flex, Text } from '@chakra-ui/react';
 import { FC } from 'react';
 
+import { auth } from '../../../utils/firebase';
+
 const ProfileScene: FC = () => {
   return (
     <>
@@ -14,7 +16,7 @@ const ProfileScene: FC = () => {
             <Text color="gray.500" fontSize="sm" mb="1em">
               lafenlesley@gmail.com
             </Text>
-            <Button bg="#f44" _hover={{ bg: '#e33' }}>
+            <Button bg="#f44" _hover={{ bg: '#e33' }} onClick={() => auth.signOut()}>
               Log me out
             </Button>
           </Box>
