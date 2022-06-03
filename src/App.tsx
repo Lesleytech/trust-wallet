@@ -1,7 +1,10 @@
+import 'react-toastify/dist/ReactToastify.css';
+
 import { ChakraProvider } from '@chakra-ui/react';
 import { FC } from 'react';
 import { Provider as StoreProvider } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 
 import { ProtectedRoute } from './modules/Auth/Components';
 import { LoginScene, RegisterScene } from './modules/Auth/Scenes';
@@ -30,6 +33,7 @@ const App: FC = () => {
             />
           </Routes>
         </BrowserRouter>
+        <ToastContainer hideProgressBar />
       </ChakraProvider>
     </StoreProvider>
   );

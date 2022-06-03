@@ -1,11 +1,24 @@
-import { Box, Text } from '@chakra-ui/react';
+import { Avatar, Box, Button, Flex, Text } from '@chakra-ui/react';
 import { FC } from 'react';
 
 const ProfileScene: FC = () => {
   return (
     <>
-      <Box bg="white" p="1.5em" borderRadius="15px" minH="200px" shadow="lg">
-        <Text>Profile scene</Text>
+      <Box bg="white" p="2em" borderRadius="15px" shadow="lg">
+        <Flex alignItems="center" gap="2em">
+          <Avatar name="Lafen Lesley" color="white" bgColor="purple.400" size="xl" />
+          <Box>
+            <Text as="h1" m="0">
+              Lafen Lesley
+            </Text>
+            <Text color="gray.500" fontSize="sm" mb="1em">
+              lafenlesley@gmail.com
+            </Text>
+            <Button bg="#f44" _hover={{ bg: '#e33' }}>
+              Log me out
+            </Button>
+          </Box>
+        </Flex>
       </Box>
     </>
   );

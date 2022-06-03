@@ -79,11 +79,11 @@ const DashbaordLayout: FC = () => {
         <Box gridArea="m">
           <Box
             display="flex"
-            p="0.5em"
+            p="0.5em 1.5em"
             alignItems="flex-end"
             justifyContent="space-between"
             mb="1.5em">
-            <Text as="h2" m="0">
+            <Text as="h1" m="0" pos="relative" top="0.25em">
               {headings[pathname]}
             </Text>
             <Flex alignItems="center" gap="0.5em">
