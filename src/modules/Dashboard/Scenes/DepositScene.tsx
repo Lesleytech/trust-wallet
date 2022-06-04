@@ -55,7 +55,7 @@ const DepositScene: FC = () => {
   }, [amount, currentUser]);
 
   return (
-    <>
+    <Box>
       <Box bg="white" p="1.5em 2em" borderRadius="15px" minH="200px" shadow="lg">
         <Text fontSize="sm" mb="0.5em">
           Enter the amount to deposit
@@ -104,7 +104,7 @@ const DepositScene: FC = () => {
         </Text>
         . Do you confirm?
       </Dialog>
-    </>
+    </Box>
   );
 };
 

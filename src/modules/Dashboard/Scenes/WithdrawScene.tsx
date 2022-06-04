@@ -1,11 +1,26 @@
 import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  increment,
+  serverTimestamp,
+  updateDoc,
+} from 'firebase/firestore';
 import { Form, Formik } from 'formik';
 import { InputControl, SelectControl, SubmitButton } from 'formik-chakra-ui';
 import { FC, useCallback, useMemo, useRef, useState } from 'react';
 import { HiOutlineArrowRight } from 'react-icons/hi';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
 import { secureQuestions } from '../../../data';
+import { formatNumber } from '../../../helpers';
+import { getAvgWithdrawal } from '../../../store/slices/account';
+import { RootState } from '../../../store/types';
+import { auth, db } from '../../../utils/firebase';
 import { Dialog } from '../Components';
 
 interface WithDrawValues {
@@ -23,37 +38,83 @@ const securityValidationSchema: Yup.SchemaOf<SecurityValues> = Yup.object({
 });
 
 const WithdrawScene: FC = () => {
-  const [loading] = useState();
+  const [loading, setLoading] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isFlagged, setIsFlagged] = useState(false);
   const [amount, setAmount] = useState(5);
   const securityFormRef = useRef<any>();
+  const { balance } = useSelector((state: RootState) => state.account);
+  const { currentUser } = useSelector((state: RootState) => state.auth);
+  const avgWithdrawal = useSelector(getAvgWithdrawal);
 
   const withdrawValidationSchema: Yup.SchemaOf<WithDrawValues> = useMemo(
     () =>
       Yup.object({
-        amount: Yup.number().required().min(5).max(100000).label('Amount'),
+        amount: Yup.number().required().min(5).max(balance).label('Amount'),
       }),
-    [],
+    [balance],
   );
 
-  const handleSubmit = useCallback(() => {
-    if (amount > 10000) {
+  const withdraw = useCallback(async () => {
+    try {
+      await addDoc(collection(db, 'users', currentUser?.uid || '', 'transactions'), {
+        type: 'withdrawal',
+        timestamp: serverTimestamp(),
+        amount,
+      });
+
+      await updateDoc(doc(db, 'users', currentUser?.uid || ''), {
+        'account.balance': increment(-amount),
+      });
+
+      toast('Transaction complete', { type: 'success' });
+    } catch (err) {
+      toast('An error occured', { type: 'error' });
+    }
+  }, [amount, currentUser]);
+
+  const handleSubmit = useCallback(async () => {
+    if (amount > avgWithdrawal * 2) {
       setIsFlagged(true);
       setIsConfirmOpen(false);
-
-      return;
+    } else {
+      setLoading(true);
+      await withdraw().then(() => setIsConfirmOpen(false));
+      setLoading(false);
     }
+  }, [amount, avgWithdrawal, withdraw]);
 
-    // TODO: Handle normal withdraw case
-  }, [amount]);
+  const handleSecureSubmit = useCallback(
+    async ({ answer, question }: SecurityValues) => {
+      if (!currentUser) return;
+      setLoading(true);
 
-  const handleSecureSubmit = useCallback(({ answer, question }: SecurityValues) => {
-    // TODO: Verify answer/question
-  }, []);
+      try {
+        const docSnap = await getDoc(doc(db, 'users', currentUser.uid));
+
+        if (docSnap.exists()) {
+          const { secure } = docSnap.data();
+
+          if (question === secure.question && answer === secure.answer) {
+            await withdraw().then(() => setIsFlagged(false));
+          } else {
+            toast('Incorrect question/answer! You will be logged out', { type: 'error' });
+            setTimeout(() => {
+              auth.signOut();
+            }, 3000);
+          }
+        }
+      } catch (err) {
+        toast('An error occured', { type: 'error' });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [currentUser, withdraw],
+  );
 
   return (
-    <>
+    <Box>
       <Box bg="white" p="1.5em 2em" borderRadius="15px" minH="200px" shadow="lg">
         <Text fontSize="sm" mb="0.5em">
           Enter the amount to withdraw
@@ -83,7 +144,7 @@ const WithdrawScene: FC = () => {
           </Formik>
         </Flex>
         <Text fontSize="sm" color="gray.500">
-          You can withdraw a minimum of $5 and a maximum of $100000
+          You can withdraw a minimum of $5.00 and a maximum of ${formatNumber(balance)}
         </Text>
       </Box>
       <Dialog
@@ -124,7 +185,7 @@ const WithdrawScene: FC = () => {
           initialValues={{ answer: '', question: secureQuestions[0] }}
           validationSchema={securityValidationSchema}
           onSubmit={handleSecureSubmit}>
-          <Form>
+          <Form autoComplete="off">
             <SelectControl name="question" mb="0.5em">
               {secureQuestions.map((q, i) => (
                 <option value={q} key={i}>
@@ -141,7 +202,7 @@ const WithdrawScene: FC = () => {
           </Form>
         </Formik>
       </Dialog>
-    </>
+    </Box>
   );
 };
 

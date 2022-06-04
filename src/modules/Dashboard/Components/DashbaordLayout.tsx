@@ -96,8 +96,8 @@ const DashbaordLayout: FC = () => {
         gridTemplate="1fr / minmax(300px, 25vw) 1fr"
         gridTemplateAreas="'s m'"
         gap="1.5em"
-        p="1.5em 2em">
-        <Box gridArea="s" bg="primary.main" borderRadius="15px" px="1em" shadow="lg">
+        px="2em">
+        <Box gridArea="s" bg="primary.main" borderRadius="15px" px="1em" shadow="lg" my="1.5em">
           <Box my="1.5em" px="1em">
             <Link to="/">
               <Text as="h2" m="0">
@@ -114,7 +114,7 @@ const DashbaordLayout: FC = () => {
             ))}
           </Box>
         </Box>
-        <Box gridArea="m">
+        <Box gridArea="m" display="grid" gridTemplateRows="auto 1fr" height="100vh" py="1.5em">
           <Box
             display="flex"
             p="0.5em 1.5em"

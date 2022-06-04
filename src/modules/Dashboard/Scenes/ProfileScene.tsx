@@ -9,7 +9,7 @@ const ProfileScene: FC = () => {
   const { currentUser } = useSelector((state: RootState) => state.auth);
 
   return (
-    <>
+    <Box>
       <Box bg="white" p="2em" borderRadius="15px" shadow="lg">
         <Flex alignItems="center" gap="2em">
           <Avatar name={currentUser?.fullName} color="white" bgColor="purple.400" size="xl" />
@@ -26,7 +26,7 @@ const ProfileScene: FC = () => {
           </Box>
         </Flex>
       </Box>
-    </>
+    </Box>
   );
 };
 

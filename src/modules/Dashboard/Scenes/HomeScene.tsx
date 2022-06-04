@@ -13,7 +13,7 @@ const HomeScene: FC = () => {
   const todayTotal = useSelector(getTodayTotal);
 
   return (
-    <>
+    <Box display="grid" gridTemplateRows="auto 1fr">
       <Flex height="100px" gap="1em" mb="1.5em">
         <Flex
           flex="1"
@@ -84,7 +84,7 @@ const HomeScene: FC = () => {
           </Table>
         </TableContainer>
       </Box>
-    </>
+    </Box>
   );
 };
 

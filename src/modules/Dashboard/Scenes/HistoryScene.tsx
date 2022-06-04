@@ -11,13 +11,13 @@ const HistoryScene: FC = () => {
 
   return (
     <>
-      <Box bg="white" p="1.5em 2em" borderRadius="15px" minH="200px" shadow="lg">
+      <Box bg="white" p="1.5em 2em" borderRadius="15px" shadow="lg" overflowY="auto">
         <Text fontSize="sm" color="gray.500">
           Here are all your recent transactions
         </Text>
         <TableContainer mt="2em" fontSize="sm">
-          <Table size="sm">
-            <Thead>
+          <Table size="sm" pos="relative">
+            <Thead pos="sticky" top="0" bg="white">
               <Tr>
                 <Th>Type</Th>
                 <Th isNumeric>Amount ($)</Th>

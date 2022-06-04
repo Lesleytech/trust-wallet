@@ -42,3 +42,17 @@ export const getTodayTotal = createSelector(getTodayTransactions, (transactions)
 
   return { withdraw, deposit };
 });
+
+export const getAvgWithdrawal = createSelector(
+  (state: RootState) => state.account.transactions,
+  (transactions) => {
+    const pastMonthTransactions = transactions.filter(
+      (t) => t.type !== 'deposit' && dayjs().diff(dayjs(t.timestamp), 'day') <= 30,
+    );
+
+    const total = pastMonthTransactions.reduce((acc, curr) => acc + curr.amount, 0);
+    const avg = total / pastMonthTransactions.length;
+
+    return avg;
+  },
+);
