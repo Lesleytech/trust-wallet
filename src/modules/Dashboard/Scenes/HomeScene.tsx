@@ -13,7 +13,7 @@ const HomeScene: FC = () => {
   const todayTotal = useSelector(getTodayTotal);
 
   return (
-    <Box display="grid" gridTemplateRows="auto 1fr">
+    <Box display="grid" gridTemplateRows="auto 1fr" h="calc(100vh - 8em)">
       <Flex height="100px" gap="1em" mb="1.5em">
         <Flex
           flex="1"
@@ -55,7 +55,7 @@ const HomeScene: FC = () => {
           </Text>
         </Flex>
       </Flex>
-      <Box bg="white" p="1.5em 2em" borderRadius="15px" minH="200px" shadow="lg">
+      <Box bg="white" p="1.5em 2em" borderRadius="15px" shadow="lg" overflowY="auto">
         <Text as="h3">Today's transactions</Text>
         <TableContainer mt="2em" fontSize="sm">
           <Table size="sm">
