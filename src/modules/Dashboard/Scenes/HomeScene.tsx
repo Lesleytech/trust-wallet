@@ -25,7 +25,7 @@ const HomeScene: FC = () => {
           flexDir="column">
           <Text fontSize="sm">Account balance</Text>
           <Text fontSize="1.5rem" fontWeight="bold">
-            ${formatNumber(balance)}
+            {formatNumber(balance)}
           </Text>
         </Flex>
         <Flex
@@ -38,7 +38,7 @@ const HomeScene: FC = () => {
           flexDir="column">
           <Text fontSize="sm">Today's withdrawal</Text>
           <Text fontSize="1.5rem" fontWeight="bold">
-            ${formatNumber(todayTotal.withdraw)}
+            {formatNumber(todayTotal.withdraw)}
           </Text>
         </Flex>
         <Flex
@@ -51,7 +51,7 @@ const HomeScene: FC = () => {
           flexDir="column">
           <Text fontSize="sm">Today's deposit</Text>
           <Text fontSize="1.5rem" fontWeight="bold">
-            ${formatNumber(todayTotal.deposit)}
+            {formatNumber(todayTotal.deposit)}
           </Text>
         </Flex>
       </Flex>
@@ -62,7 +62,7 @@ const HomeScene: FC = () => {
             <Thead>
               <Tr>
                 <Th>Type</Th>
-                <Th isNumeric>Amount ($)</Th>
+                <Th isNumeric>Amount (₦)</Th>
                 <Th>Time</Th>
               </Tr>
             </Thead>
@@ -75,7 +75,7 @@ const HomeScene: FC = () => {
                 todayTransactions.map(({ amount, id, timestamp, type }) => (
                   <Tr key={id}>
                     <Td textTransform="capitalize">{type}</Td>
-                    <Td isNumeric>{formatNumber(amount)}</Td>
+                    <Td isNumeric>{formatNumber(amount, { showSymbol: false })}</Td>
                     <Td>{dayjs(timestamp).format('MMM D, YYYY h:mm A')}</Td>
                   </Tr>
                 ))

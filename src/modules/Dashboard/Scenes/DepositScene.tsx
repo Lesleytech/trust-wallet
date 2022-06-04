@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
+import { formatNumber } from '../../../helpers';
 import { RootState } from '../../../store/types';
 import { db } from '../../../utils/firebase';
 import { Dialog } from '../Components';
@@ -73,7 +74,7 @@ const DepositScene: FC = () => {
                 <InputControl
                   name="amount"
                   inputProps={{
-                    placeholder: 'Enter amount in USD',
+                    placeholder: 'Enter amount in ₦',
                     type: 'number',
                   }}
                 />
@@ -100,7 +101,7 @@ const DepositScene: FC = () => {
         }>
         You are about to deposit{' '}
         <Text fontWeight="500" as="span">
-          {amount} USD
+          {formatNumber(amount)}
         </Text>
         . Do you confirm?
       </Dialog>

@@ -132,7 +132,7 @@ const WithdrawScene: FC = () => {
                 <InputControl
                   name="amount"
                   inputProps={{
-                    placeholder: 'Enter amount in USD',
+                    placeholder: 'Enter amount in ₦',
                     type: 'number',
                   }}
                 />
@@ -144,7 +144,7 @@ const WithdrawScene: FC = () => {
           </Formik>
         </Flex>
         <Text fontSize="sm" color="gray.500">
-          You can withdraw a minimum of $5.00 and a maximum of ${formatNumber(balance)}
+          You can withdraw a minimum of {formatNumber(5)} and a maximum of {formatNumber(balance)}
         </Text>
       </Box>
       <Dialog
@@ -159,7 +159,7 @@ const WithdrawScene: FC = () => {
         }>
         You are about to withdraw{' '}
         <Text fontWeight="500" as="span">
-          {amount} USD
+          {formatNumber(amount)}
         </Text>
         . Do you confirm?
       </Dialog>

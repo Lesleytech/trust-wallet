@@ -20,7 +20,7 @@ const HistoryScene: FC = () => {
             <Thead pos="sticky" top="0" bg="white">
               <Tr>
                 <Th>Type</Th>
-                <Th isNumeric>Amount ($)</Th>
+                <Th isNumeric>Amount (₦)</Th>
                 <Th>Time</Th>
               </Tr>
             </Thead>
@@ -33,7 +33,7 @@ const HistoryScene: FC = () => {
                 transactions.map(({ amount, id, timestamp, type }) => (
                   <Tr key={id}>
                     <Td textTransform="capitalize">{type}</Td>
-                    <Td isNumeric>{formatNumber(amount)}</Td>
+                    <Td isNumeric>{formatNumber(amount, { showSymbol: false })}</Td>
                     <Td>{dayjs(timestamp).format('MMM D, YYYY h:mm A')}</Td>
                   </Tr>
                 ))
