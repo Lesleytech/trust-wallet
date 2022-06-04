@@ -9,7 +9,7 @@ import { RiArrowLeftRightLine, RiLuggageDepositFill, RiUserFill } from 'react-ic
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
-import { setBalance, setTransactions } from '../../../store/slices/account';
+import { setAccountDetails, setTransactions } from '../../../store/slices/account';
 import { RootState } from '../../../store/types';
 import { db } from '../../../utils/firebase';
 import { DepositScene, HistoryScene, HomeScene, ProfileScene, WithdrawScene } from '../Scenes';
@@ -61,7 +61,12 @@ const DashbaordLayout: FC = () => {
 
     const unsubscribe1 = onSnapshot(doc(db, 'users', currentUser.uid), (doc) => {
       const user = doc.data();
-      dispatch(setBalance(user?.account.balance || 0));
+      dispatch(
+        setAccountDetails({
+          balance: user?.account.balance || 0,
+          cardNumber: user?.account.cardNumber || 'XXXXXX',
+        }),
+      );
     });
 
     const unsubscribe2 = onSnapshot(

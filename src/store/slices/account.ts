@@ -6,10 +6,19 @@ import { RootState } from './../types/index';
 
 const slice = createSlice({
   name: 'account',
-  initialState: { loading: true, balance: 0, transactions: [] } as RootState['account'],
+  initialState: {
+    loading: true,
+    balance: 0,
+    transactions: [],
+    cardNumber: '',
+  } as RootState['account'],
   reducers: {
-    setBalance: (account, action: PayloadAction<number>) => {
-      account.balance = action.payload;
+    setAccountDetails: (
+      account,
+      action: PayloadAction<{ balance: number; cardNumber: string }>,
+    ) => {
+      account.balance = action.payload.balance;
+      account.cardNumber = action.payload.cardNumber;
     },
     setTransactions: (account, action: PayloadAction<TransactionType[]>) => {
       account.transactions = action.payload;
@@ -19,7 +28,7 @@ const slice = createSlice({
 });
 
 export default slice.reducer;
-export const { setBalance, setTransactions } = slice.actions;
+export const { setAccountDetails, setTransactions } = slice.actions;
 
 export const getTodayTransactions = createSelector(
   (state: RootState) => state.account.transactions,

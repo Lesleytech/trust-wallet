@@ -100,7 +100,7 @@ const DepositScene: FC = () => {
           </Button>
         }>
         You are about to deposit{' '}
-        <Text fontWeight="500" as="span">
+        <Text fontWeight="700" as="span">
           {formatNumber(amount)}
         </Text>
         . Do you confirm?

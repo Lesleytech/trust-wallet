@@ -17,7 +17,7 @@ import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
 import { secureQuestions } from '../../../data';
-import { formatNumber } from '../../../helpers';
+import { formatCardNumber, formatNumber } from '../../../helpers';
 import { getAvgWithdrawal } from '../../../store/slices/account';
 import { RootState } from '../../../store/types';
 import { auth, db } from '../../../utils/firebase';
@@ -52,14 +52,18 @@ const WithdrawScene: FC = () => {
   const [amount, setAmount] = useState(5);
   const securityFormRef = useRef<any>();
   const pinCheckFormRef = useRef<any>();
-  const { balance } = useSelector((state: RootState) => state.account);
+  const { balance, cardNumber } = useSelector((state: RootState) => state.account);
   const { currentUser } = useSelector((state: RootState) => state.auth);
   const avgWithdrawal = useSelector(getAvgWithdrawal);
 
   const withdrawValidationSchema: Yup.SchemaOf<WithDrawValues> = useMemo(
     () =>
       Yup.object({
-        amount: Yup.number().required().min(5).max(balance).label('Amount'),
+        amount: Yup.number()
+          .required()
+          .min(5, `Minimum withdrawal amount is ${formatNumber(5)}`)
+          .max(balance, `Maximum withdrawal amount is ${formatNumber(balance)}`)
+          .label('Amount'),
       }),
     [balance],
   );
@@ -196,8 +200,12 @@ const WithdrawScene: FC = () => {
           </Button>
         }>
         You are about to withdraw{' '}
-        <Text fontWeight="500" as="span">
+        <Text fontWeight="700" as="span">
           {formatNumber(amount)}
+        </Text>{' '}
+        from{' '}
+        <Text fontWeight="700" as="span">
+          {formatCardNumber(cardNumber)}
         </Text>
         . Enter your security PIN to continue
         <Formik

@@ -6,3 +6,7 @@ export const formatNumber = (
     (options.showSymbol ? '₦' : '') + num.toLocaleString(undefined, { minimumFractionDigits: 2 })
   );
 };
+
+export const formatCardNumber = (num: string) => {
+  return '****' + num.slice(4, 7);
+};
