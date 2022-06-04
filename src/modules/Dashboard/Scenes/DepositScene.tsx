@@ -78,7 +78,7 @@ const DepositScene: FC = () => {
                     type: 'number',
                   }}
                 />
-                <SubmitButton rightIcon={<HiOutlineArrowRight />} height="40px" isLoading={loading}>
+                <SubmitButton rightIcon={<HiOutlineArrowRight />} height="40px" isLoading={false}>
                   Continue
                 </SubmitButton>
               </Flex>

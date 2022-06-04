@@ -9,7 +9,7 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { Form, Formik } from 'formik';
-import { InputControl, SelectControl, SubmitButton } from 'formik-chakra-ui';
+import { InputControl, PinInputControl, SelectControl, SubmitButton } from 'formik-chakra-ui';
 import { FC, useCallback, useMemo, useRef, useState } from 'react';
 import { HiOutlineArrowRight } from 'react-icons/hi';
 import { useSelector } from 'react-redux';
@@ -32,9 +32,17 @@ interface SecurityValues {
   answer: string;
 }
 
+interface PinCheckValues {
+  pin: string;
+}
+
 const securityValidationSchema: Yup.SchemaOf<SecurityValues> = Yup.object({
   answer: Yup.string().required().label('Secure answer'),
   question: Yup.string().required().label('Security question'),
+});
+
+const pinCheckValidationSchema: Yup.SchemaOf<PinCheckValues> = Yup.object({
+  pin: Yup.string().required().length(4, 'Security PIN must be 4 digits').label('Security PIN'),
 });
 
 const WithdrawScene: FC = () => {
@@ -43,6 +51,7 @@ const WithdrawScene: FC = () => {
   const [isFlagged, setIsFlagged] = useState(false);
   const [amount, setAmount] = useState(5);
   const securityFormRef = useRef<any>();
+  const pinCheckFormRef = useRef<any>();
   const { balance } = useSelector((state: RootState) => state.account);
   const { currentUser } = useSelector((state: RootState) => state.auth);
   const avgWithdrawal = useSelector(getAvgWithdrawal);
@@ -83,6 +92,32 @@ const WithdrawScene: FC = () => {
       setLoading(false);
     }
   }, [amount, avgWithdrawal, withdraw]);
+
+  const handlePinCheck = useCallback(
+    async ({ pin }: PinCheckValues) => {
+      if (!currentUser) return;
+      setLoading(true);
+
+      try {
+        const docSnap = await getDoc(doc(db, 'users', currentUser.uid));
+
+        if (docSnap.exists()) {
+          const { secure } = docSnap.data();
+
+          if (pin === secure.pin) {
+            handleSubmit();
+          } else {
+            toast('An incorrect PIN was entered', { type: 'error' });
+          }
+        }
+      } catch (err) {
+        toast('An error occured', { type: 'error' });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [currentUser, handleSubmit],
+  );
 
   const handleSecureSubmit = useCallback(
     async ({ answer, question }: SecurityValues) => {
@@ -136,7 +171,7 @@ const WithdrawScene: FC = () => {
                     type: 'number',
                   }}
                 />
-                <SubmitButton rightIcon={<HiOutlineArrowRight />} height="40px" isLoading={loading}>
+                <SubmitButton rightIcon={<HiOutlineArrowRight />} height="40px" isLoading={false}>
                   Continue
                 </SubmitButton>
               </Flex>
@@ -153,7 +188,10 @@ const WithdrawScene: FC = () => {
         open={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         ConfirmButton={
-          <Button onClick={handleSubmit} isLoading={loading} disabled={loading}>
+          <Button
+            onClick={() => pinCheckFormRef.current?.handleSubmit?.()}
+            isLoading={loading}
+            disabled={loading}>
             Continue
           </Button>
         }>
@@ -161,7 +199,24 @@ const WithdrawScene: FC = () => {
         <Text fontWeight="500" as="span">
           {formatNumber(amount)}
         </Text>
-        . Do you confirm?
+        . Enter your security PIN to continue
+        <Formik
+          validationSchema={pinCheckValidationSchema}
+          initialValues={{ pin: '' }}
+          onSubmit={handlePinCheck}
+          innerRef={pinCheckFormRef}>
+          <Form>
+            <Flex justifyContent="center" mt="2em" mb="1.5em">
+              <PinInputControl
+                w="fit-content"
+                pinAmount={4}
+                isDisabled={loading}
+                name="pin"
+                pinInputProps={{ isDisabled: loading }}
+              />
+            </Flex>
+          </Form>
+        </Formik>
       </Dialog>
       <Dialog
         loading={loading}

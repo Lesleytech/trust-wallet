@@ -2,7 +2,7 @@ import { Box, Flex, Link as ChakraLink, Text } from '@chakra-ui/react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { addDoc, collection, doc, setDoc, Timestamp } from 'firebase/firestore';
 import { Form, Formik } from 'formik';
-import { InputControl, SelectControl, SubmitButton } from 'formik-chakra-ui';
+import { InputControl, PinInputControl, SelectControl, SubmitButton } from 'formik-chakra-ui';
 import { FC, useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { HiOutlineArrowRight } from 'react-icons/hi';
@@ -19,6 +19,8 @@ interface FormValues {
   password: string;
   secureQuestion: string;
   secureAnswer: string;
+  pin: string;
+  cardNumber: string;
 }
 
 const validationSchema: Yup.SchemaOf<FormValues> = Yup.object({
@@ -27,6 +29,12 @@ const validationSchema: Yup.SchemaOf<FormValues> = Yup.object({
   password: Yup.string().required().label('Password'),
   secureQuestion: Yup.string().required().label('Security question'),
   secureAnswer: Yup.string().required().label('Secure answer'),
+  cardNumber: Yup.string()
+    .required()
+    .matches(/^\d+$/, 'Only numbers are allowed')
+    .length(6, 'Card number must be 6 digits')
+    .label('Card number'),
+  pin: Yup.string().required().length(4, 'Security PIN must be 4 digits').label('Security PIN'),
 });
 
 const RegisterScene: FC = () => {
@@ -45,9 +53,11 @@ const RegisterScene: FC = () => {
         secure: {
           question: data.secureQuestion,
           answer: data.secureAnswer,
+          pin: data.pin,
         },
         account: {
           balance: 100000,
+          cardNumber: data.cardNumber,
         },
       });
 
@@ -95,6 +105,8 @@ const RegisterScene: FC = () => {
           fullName: '',
           secureQuestion: secureQuestions[0],
           secureAnswer: '',
+          cardNumber: '',
+          pin: '',
         }}
         onSubmit={handleSubmit}
         validationSchema={validationSchema}>
@@ -106,6 +118,9 @@ const RegisterScene: FC = () => {
           gap="0.5em"
           pb="75px"
           autoComplete="off">
+          <Text fontSize="0.8rem" color="gray.500">
+            Account details
+          </Text>
           <InputControl
             name="fullName"
             isDisabled={loading}
@@ -129,6 +144,26 @@ const RegisterScene: FC = () => {
               type: 'password',
             }}
           />
+          <br />
+          <Flex gap="2em">
+            <InputControl
+              label="Credit card last 6 digits"
+              labelProps={{ fontSize: '0.8rem', color: 'gray.500', mb: '0.5em' }}
+              name="cardNumber"
+              isDisabled={loading}
+              inputProps={{
+                placeholder: 'XXXXXX',
+              }}
+            />
+            <PinInputControl
+              label="Security PIN"
+              pinAmount={4}
+              isDisabled={loading}
+              name="pin"
+              labelProps={{ fontSize: '0.8rem', color: 'gray.500', mb: '0.5em' }}
+              pinInputProps={{ isDisabled: loading }}
+            />
+          </Flex>
           <br />
           <Text fontSize="0.8rem" color="gray.500">
             Choose a security question and provide a secret answer. This question will be used to
