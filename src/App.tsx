@@ -1,16 +1,18 @@
 import 'react-toastify/dist/ReactToastify.css';
 
-import { ChakraProvider } from '@chakra-ui/react';
-import { FC } from 'react';
+import { ChakraProvider, Flex, Spinner } from '@chakra-ui/react';
+import { FC, lazy, Suspense } from 'react';
 import { Provider as StoreProvider } from 'react-redux';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
+import { RemoveTrailingSlash } from './Components';
 import { AuthListener, ProtectedRoute } from './modules/Auth/Components';
-import { LoginScene, RegisterScene } from './modules/Auth/Scenes';
-import { DashbaordLayout } from './modules/Dashboard/Components';
 import { store } from './store';
 import { theme } from './theme';
+
+const AuthLayout = lazy(() => import('./modules/Auth/Components/AuthLayout'));
+const DashbaordLayout = lazy(() => import('./modules/Dashboard/Components/DashbaordLayout'));
 
 const App: FC = () => {
   return (
@@ -18,21 +20,25 @@ const App: FC = () => {
       <ChakraProvider theme={theme}>
         <AuthListener>
           <BrowserRouter>
-            <Routes>
-              <Route path="auth">
-                <Route index element={<Navigate to="/auth/login" replace />} />
-                <Route path="login" element={<LoginScene />} />
-                <Route path="register" element={<RegisterScene />} />
-              </Route>
-              <Route
-                path="/*"
-                element={
-                  <ProtectedRoute>
-                    <DashbaordLayout />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
+            <RemoveTrailingSlash />
+            <Suspense
+              fallback={
+                <Flex h="100vh" alignItems="center" justifyContent="center">
+                  <Spinner color="primary.main" size="xl" />
+                </Flex>
+              }>
+              <Routes>
+                <Route path="/auth/*" element={<AuthLayout />} />
+                <Route
+                  path="/*"
+                  element={
+                    <ProtectedRoute>
+                      <DashbaordLayout />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </Suspense>
           </BrowserRouter>
         </AuthListener>
         <ToastContainer hideProgressBar />

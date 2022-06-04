@@ -10,7 +10,6 @@ import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
 import { auth } from '../../../utils/firebase';
-import { AuthLayout } from '../Components';
 
 interface FormValues {
   email: string;
@@ -51,7 +50,7 @@ const LoginScene: FC = () => {
       <Helmet>
         <title>Login | Trust Wallet</title>
       </Helmet>
-      <AuthLayout>
+      <>
         <Image
           src="/images/credit-card-illustration.svg"
           maxW="250px"
@@ -111,7 +110,7 @@ const LoginScene: FC = () => {
             </Flex>
           </Flex>
         </Formik>
-      </AuthLayout>
+      </>
     </>
   );
 };

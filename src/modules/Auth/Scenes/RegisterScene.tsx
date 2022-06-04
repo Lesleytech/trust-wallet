@@ -12,7 +12,6 @@ import * as Yup from 'yup';
 
 import { secureQuestions } from '../../../data';
 import { auth, db } from '../../../utils/firebase';
-import { AuthLayout } from '../Components';
 
 interface FormValues {
   fullName: string;
@@ -81,91 +80,89 @@ const RegisterScene: FC = () => {
       <Helmet>
         <title>Register | Trust Wallet</title>
       </Helmet>
-      <AuthLayout>
-        <Box textAlign="center" my="1.5em">
-          <Text as="h1" mb="0.2em">
-            Create an account
+      <Box textAlign="center" my="1.5em">
+        <Text as="h1" mb="0.2em">
+          Create an account
+        </Text>
+        <Text color="gray.500" fontSize="0.9rem">
+          Fill in the form and click on continue
+        </Text>
+      </Box>
+      <Formik
+        initialValues={{
+          email: '',
+          password: '',
+          fullName: '',
+          secureQuestion: secureQuestions[0],
+          secureAnswer: '',
+        }}
+        onSubmit={handleSubmit}
+        validationSchema={validationSchema}>
+        <Flex
+          as={Form}
+          maxW="400px"
+          direction="column"
+          mx="auto"
+          gap="0.5em"
+          pb="75px"
+          autoComplete="off">
+          <InputControl
+            name="fullName"
+            isDisabled={loading}
+            inputProps={{
+              placeholder: 'Enter full name',
+            }}
+          />
+          <InputControl
+            name="email"
+            isDisabled={loading}
+            inputProps={{
+              placeholder: 'Email address',
+              type: 'email',
+            }}
+          />
+          <InputControl
+            name="password"
+            isDisabled={loading}
+            inputProps={{
+              placeholder: 'Enter password',
+              type: 'password',
+            }}
+          />
+          <br />
+          <Text fontSize="0.8rem" color="gray.500">
+            Choose a security question and provide a secret answer. This question will be used to
+            verify transactions that appear suspicious.
           </Text>
-          <Text color="gray.500" fontSize="0.9rem">
-            Fill in the form and click on continue
-          </Text>
-        </Box>
-        <Formik
-          initialValues={{
-            email: '',
-            password: '',
-            fullName: '',
-            secureQuestion: secureQuestions[0],
-            secureAnswer: '',
-          }}
-          onSubmit={handleSubmit}
-          validationSchema={validationSchema}>
-          <Flex
-            as={Form}
-            maxW="400px"
-            direction="column"
-            mx="auto"
-            gap="0.5em"
-            pb="75px"
-            autoComplete="off">
-            <InputControl
-              name="fullName"
-              isDisabled={loading}
-              inputProps={{
-                placeholder: 'Enter full name',
-              }}
-            />
-            <InputControl
-              name="email"
-              isDisabled={loading}
-              inputProps={{
-                placeholder: 'Email address',
-                type: 'email',
-              }}
-            />
-            <InputControl
-              name="password"
-              isDisabled={loading}
-              inputProps={{
-                placeholder: 'Enter password',
-                type: 'password',
-              }}
-            />
-            <br />
-            <Text fontSize="0.8rem" color="gray.500">
-              Choose a security question and provide a secret answer. This question will be used to
-              verify transactions that appear suspicious.
-            </Text>
-            <SelectControl name="secureQuestion" isDisabled={loading}>
-              {secureQuestions.map((q, i) => (
-                <option value={q} key={i}>
-                  {q}
-                </option>
-              ))}
-            </SelectControl>
-            <InputControl
-              name="secureAnswer"
-              isDisabled={loading}
-              inputProps={{
-                placeholder: 'Security question answer',
-              }}
-            />
-            <Flex alignItems="flex-end" justifyContent="space-between">
-              <SubmitButton
-                rightIcon={<HiOutlineArrowRight />}
-                alignSelf="flex-end"
-                mt="2em"
-                isLoading={loading}
-                loadingText="Creating account">
-                Continue
-              </SubmitButton>
-              <ChakraLink as={Link} to="/auth/login" fontSize="sm" fontWeight="500">
-                Login into your account
-              </ChakraLink>
-            </Flex>
+          <SelectControl name="secureQuestion" isDisabled={loading}>
+            {secureQuestions.map((q, i) => (
+              <option value={q} key={i}>
+                {q}
+              </option>
+            ))}
+          </SelectControl>
+          <InputControl
+            name="secureAnswer"
+            isDisabled={loading}
+            inputProps={{
+              placeholder: 'Security question answer',
+            }}
+          />
+          <Flex alignItems="flex-end" justifyContent="space-between">
+            <SubmitButton
+              rightIcon={<HiOutlineArrowRight />}
+              alignSelf="flex-end"
+              mt="2em"
+              isLoading={loading}
+              loadingText="Creating account">
+              Continue
+            </SubmitButton>
+            <ChakraLink as={Link} to="/auth/login" fontSize="sm" fontWeight="500">
+              Login into your account
+            </ChakraLink>
           </Flex>
-        </Formik>
-      </AuthLayout>
+        </Flex>
+      </Formik>
     </>
   );
 };

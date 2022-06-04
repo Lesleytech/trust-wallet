@@ -87,7 +87,7 @@ const DashbaordLayout: FC = () => {
   return (
     <>
       <Helmet>
-        <title>{headings[pathname]} | Trust Wallet</title>
+        <title>{headings[pathname] || ''} | Trust Wallet</title>
       </Helmet>
       <Box
         minH="100vh"
@@ -135,7 +135,7 @@ const DashbaordLayout: FC = () => {
           </Box>
           {loading ? (
             <Flex alignItems="center" justifyContent="center" height="70vh">
-              <Spinner size="xl" color="gray.500" />
+              <Spinner size="xl" color="primary.main" />
             </Flex>
           ) : (
             <Routes>
@@ -153,4 +153,4 @@ const DashbaordLayout: FC = () => {
   );
 };
 
-export { DashbaordLayout };
+export default DashbaordLayout;
